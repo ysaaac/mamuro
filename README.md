@@ -3,6 +3,14 @@
 - This is a simple program that gets data from [Enron Email Dataset](https://www.cs.cmu.edu/~enron/) just for learning
   purposes.
 
+## QuickStart:
+
+- All config needed is put at the `docker-compose.yml` file so it's sufficient with running:
+
+```zsh
+docker-compose up -d # I prefer the detached mod, but it's totally optional
+```
+
 ## Objective:
 
 - The objective of this project is to index the dataset into `Zincsearch` to then use it as a powerful tool for

@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  zincsearch:
+    image: public.ecr.aws/zinclabs/zincsearch:latest
+    container_name: zincsearch
+    volumes:
+      - zincsearch-volume:/data
+    ports:
+      - "4080:4080"
+    environment:
+      - ZINC_DATA_PATH=/data
+      - ZINC_FIRST_ADMIN_USER=admin
+      - ZINC_FIRST_ADMIN_PASSWORD=admin123
+  go-api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: go-api
+    volumes:
+      - go-api-volume:/app
+    ports:
+      - "8080:8080"
+    environment:
+      - API_PORT=8080
+      - ZINCSEARCH_URI=localhost:4080
+  vue-client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    container_name: vue-client
+    volumes:
+      - vue-client-volume:/app/src
+    ports:
+      - "9090:80"
+    environment:
+      - API_URL=localhost:8080
+
+volumes:
+  zincsearch-volume:
+  go-api-volume:
+  vue-client-volume:
