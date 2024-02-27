@@ -1,11 +1,11 @@
 package zincsearch
 
 import (
+	"api/config"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"mamuro-backend/config"
 	"net/http"
 )
 

@@ -1,9 +1,9 @@
-package main
+package profiling
 
 import (
+	v1 "api/indexer/profiling/v1"
 	"flag"
 	"log"
-	v1 "mamuro-backend/profiling/v1"
 	"os"
 	"runtime"
 	"runtime/pprof"
@@ -14,7 +14,7 @@ var (
 	memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 )
 
-func main() {
+func StartProfiling() {
 	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
