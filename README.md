@@ -12,29 +12,48 @@
 ## Structure:
 
 ```
-mamuro-backend
-├── config/                # env vars and things related to global project configuration
-│   ├── ...
-│   └── utils.go
+mamuro
+├── api/                              # backend api -> Indexing and REST API
+│   ├── config/                       # env vars and things related to global project configuration
+│   │   ├── ...
+│   │   └── utils.go
+│   │
+│   ├── indexer/               
+│   │   ├── profiling/                # code versions that will be updated while performance is improved
+│   │   │   ├── v1/                   # version of code
+│   │   │   │   └── indexing.go       # indexing logic code
+│   │   │   │
+│   │   │   ├── .../                 
+│   │   │   │   └── indexing.go     
+│   │   │   │
+│   │   │   ├── vN/                 
+│   │   │   │   └── indexing.go     
+│   │   │   │
+│   │   │   └── start_profiling.go     # runs the code with profiling flags to compare benchmarks
+│   │   │   
+│   │   └── test_files/                # I took some users for the benchmark. Those users data are here.
+│   │       ├── user1
+│   │       ├── ...
+│   │       └── userN
+│   │
+│   ├── models/                        # all models for the API
+│   │
+│   ├── src/                           # main logic for the API
+│   │   ├── handlers/                  # logic divided for each endpoint
+│   │   └── routes.go                  # routes for endpoints
+│   │
+│   ├── zincsearch/                    # Zincsearch logic to connect to buildin API 
+│   │   ├── ...
+│   │   └── bulk_v2.go
+│   │
+│   ├── Dockerfile
+│   ├── go.mod
+│   └── main.go
 │
-├── profiling/              # code versions that will be updated while performance is improved
-│   └── v1/                 # version of code
-│       └── indexing.go     # logic code
+├── client/                            # interface to interact with mails
+│   ├── Dockerfile
+│   └── .../                           # It follows the standart Vue project structure
 │
-├── test_file/              # I took some users for the benchmark. Those users data are here.
-│   ├── user1
-│   ├── ...
-│   └── userN
-│
-├── zincsearch/             # Zincsearch logic to connect to buildin API 
-│   ├── ...
-│   └── bulk_v2.go
-│
-├── models/                 # Models of the documents that will be indexed
-│   ├── ...
-│   └── modelN.go
-│
-├── go.mod
-├── main.go
+├── docker-compose.yml
 └── README.md
 ```
