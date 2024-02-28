@@ -17,6 +17,28 @@ docker-compose up -d # I prefer the detached mod, but it's totally optional
   searching.
 - For this project the scope I will consider only the `inbox` and `sent_items` folders for indexes.
 
+## Profiling
+
+- You can see the difference in times into versions in the path `api/indexer/profiling` and also you can run the tests
+  with:
+
+```zsh
+go test -v ./indexer/profiling
+```
+
+Note: remember to replace the version you want to use, just change `v1.IndexData()` to `v1`, `v2`, `vN`.
+
+- Also, you can run the profiling by:
+
+```zsh
+export exportPath="./indexer/profiling/v1" && go test -v -cpuprofile "$exportPath/cpu.prof" ./indexer/profiling && go tool pprof -png "$exportPath/cpu.prof" > "$exportPath/cpu.png"
+
+# This second option deletes the img generated in case it exists to replace with the new one
+export exportPath="./indexer/profiling/v1" && go test -v -cpuprofile "$exportPath/cpu.prof" ./indexer/profiling && rm -f "$exportPath/cpu.png" && go tool pprof -png "$exportPath/cpu.prof" > "$exportPath/cpu.png"
+```
+
+Note: Notice that `exportPath` is used to set where the profiling files will be saved
+
 ## Structure:
 
 ```
@@ -37,7 +59,7 @@ mamuro
 │   │   │   ├── vN/                 
 │   │   │   │   └── indexing.go     
 │   │   │   │
-│   │   │   └── start_profiling.go     # runs the code with profiling flags to compare benchmarks
+│   │   │   └── profiling_test.go     # runs the code with profiling flags to compare benchmarks
 │   │   │   
 │   │   └── test_files/                # I took some users for the benchmark. Those users data are here.
 │   │       ├── user1

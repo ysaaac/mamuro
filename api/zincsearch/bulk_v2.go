@@ -22,7 +22,7 @@ func BulkV2(data interface{}) {
 	}
 
 	// Prints how long take the request
-	defer fmt.Printf("Processing took: %v\n", time.Since(requestStartTime))
+	defer fmt.Printf("BulkV2 Processing took: %v\n", time.Since(requestStartTime))
 	// Prints response
 	fmt.Println("Response:", response)
 }
