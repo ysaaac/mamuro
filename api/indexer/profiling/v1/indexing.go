@@ -56,6 +56,7 @@ func IndexData(folderPath string) {
 	}
 
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	fmt.Printf("=================\n")
