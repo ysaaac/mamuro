@@ -51,7 +51,7 @@ func HandleResponse(resp *http.Response) (map[string]interface{}, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("StatusCode: [%d]\n-> Detail: %s\n", resp.StatusCode, string(body))
 	}
 
 	var response map[string]interface{}

@@ -1,6 +1,7 @@
 package profiling
 
 import (
+	"api/config"
 	v1 "api/indexer/profiling/v1"
 	"flag"
 	"fmt"
@@ -19,7 +20,7 @@ var (
 
 func TestStartProfiling(t *testing.T) {
 
-	testFilesPath := "../test_files/"
+	testFilesPath := config.GetEnv("DATA_FILES_PATH", "../test_files/")
 
 	flag.Parse()
 	if *cpuprofile != "" {

@@ -28,3 +28,5 @@ client/.vscode/extensions.json
 *.sw?
 
 *.tsbuildinfo
+
+backup/

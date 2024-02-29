@@ -3,20 +3,29 @@ package v1
 import (
 	"api/models"
 	"api/src"
+	"api/zincsearch"
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
+type EmailTypeBoxHelper struct {
+	EmailQty   int
+	EmailsList []*models.Email
+}
+
 func IndexData(folderPath string) {
 	fmt.Printf("=================\n")
 	// I'm defining a counter because I'm going to send a bulk every 1000 records due to bulk Zincsearch
 	// specification, you can see more here -> https://zincsearch-docs.zinc.dev/api/document/bulk/#request-action
-	//var inboxTypeItemCounter int
-	//var sentItemsTypeItemCounter int
+	inboxTypeHelper := EmailTypeBoxHelper{
+		EmailQty: 0,
+	}
+	sentItemsTypeHelper := EmailTypeBoxHelper{
+		EmailQty: 0,
+	}
 
 	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -27,26 +36,49 @@ func IndexData(folderPath string) {
 			parentDir := filepath.Base(filepath.Dir(path))
 
 			if !strings.HasPrefix(info.Name(), ".") {
-				fmt.Printf("File: %s, Index Type: %s\n", path, parentDir)
-
-				email, parseEmailError := parseEmail(path)
-				if parseEmailError != nil {
-					fmt.Println("Error:", parseEmailError)
+				//fmt.Printf("File: %s, Index Type: %s\n", path, parentDir)
+				if parentDir == "inbox" {
+					handleEmailsTypes(path, &inboxTypeHelper, "inbox")
+				} else if parentDir == "sent_items" {
+					handleEmailsTypes(path, &sentItemsTypeHelper, "sent_items")
 				}
-
-				emailJSON, _ := json.MarshalIndent(email, "", "  ")
-				//zincsearch.BulkV2()
-				fmt.Println(string(emailJSON))
 			}
 		}
 		return nil
 	})
+
+	// Send the remaining documents
+	if inboxTypeHelper.EmailQty > 0 {
+		zincsearch.BulkV2("inbox", inboxTypeHelper.EmailsList)
+	}
+	if sentItemsTypeHelper.EmailQty > 0 {
+		zincsearch.BulkV2("sent_items", sentItemsTypeHelper.EmailsList)
+	}
 
 	if err != nil {
 		return
 	}
 	fmt.Printf("=================\n")
 	return
+}
+
+func handleEmailsTypes(path string, typeHelper *EmailTypeBoxHelper, indexName string) {
+	email, parseEmailError := parseEmail(path)
+	if parseEmailError != nil {
+		fmt.Println("Error:", parseEmailError)
+	}
+	// for Zincsearch spec I split the qty sent by 1000 items into bulk
+	// https://zincsearch-docs.zinc.dev/api/document/bulkv2/
+	//fmt.Printf("EmailQty: %d EmailsListLength: %d \n", typeHelper.EmailQty, len(typeHelper.EmailsList))
+	if typeHelper.EmailQty == 1000 {
+		// I sent all the data to Zincsearch bulk
+		zincsearch.BulkV2(indexName, typeHelper.EmailsList)
+		// I restart the helper with initial values
+		typeHelper.EmailsList = []*models.Email{}
+		typeHelper.EmailQty = 0
+	}
+	typeHelper.EmailsList = append(typeHelper.EmailsList, email)
+	typeHelper.EmailQty++
 }
 
 func parseHeader(email *models.Email, line string, currentLineIndex *int) {
@@ -71,6 +103,7 @@ func parseHeader(email *models.Email, line string, currentLineIndex *int) {
 	}
 }
 
+// parseEmail gets all data of the documents
 func parseEmail(filename string) (*models.Email, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -81,22 +114,49 @@ func parseEmail(filename string) (*models.Email, error) {
 	email := &models.Email{}
 	scanner := bufio.NewScanner(file)
 
-	totalHeadersItems := len(models.HeadersList)
-	currentLineIndex := 0
+	// Initial buffer size
+	const initialBufferSize = 64 * 1024 // 64 KB
+	maxBufferSize := initialBufferSize
 
-	for scanner.Scan() {
-		line := scanner.Text()
+	// Attempt to scan with increasing buffer sizes because sometimes I'm getting
+	// bufio.Scanner: token too long and set a too long size can be a problem for
+	// memory corrupted data and also performance can be downgraded. So, It will
+	// increase only when necessary
+	for {
+		// Set the buffer size
+		buf := make([]byte, maxBufferSize)
+		scanner.Buffer(buf, maxBufferSize)
+		// Reset line index for each attempt
+		currentLineIndex := 0
+		// Reset email content for each attempt
+		email.Content = ""
 
-		if totalHeadersItems > currentLineIndex {
-			parseHeader(email, line, &currentLineIndex)
-		} else {
-			email.Content += "\n" + line
+		// Reset scanner error
+		var scannerErr error
+
+		for scanner.Scan() {
+			line := scanner.Text()
+
+			if len(models.HeadersList) > currentLineIndex {
+				parseHeader(email, line, &currentLineIndex)
+			} else {
+				email.Content += "\n" + line
+			}
 		}
-	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
+		// Check scanner error
+		if scannerErr == nil {
+			// No error, return successfully
+			return email, nil
+		}
 
-	return email, nil
+		// If error is related to token too long, double the buffer size and retry
+		if strings.Contains(scannerErr.Error(), "token too long") {
+			maxBufferSize *= 2
+			continue
+		}
+
+		// If it's another error, return the error
+		return nil, scannerErr
+	}
 }

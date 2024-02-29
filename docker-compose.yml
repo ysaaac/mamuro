@@ -26,6 +26,7 @@ services:
       - ZINCSEARCH_URI=localhost:4080
       - ZINC_FIRST_USER=admin
       - ZINC_FIRST_PASSWORD=admin123
+      - DATA_FILES_PATH="/Users/ysaaac/Downloads/enron_mail_20110402/maildir/"
   vue-client:
     build:
       context: .
@@ -37,6 +38,22 @@ services:
       - "9090:80"
     environment:
       - API_URL=localhost:8080
+
+  # Service for backup the indexed db
+  backup:
+    image: ubuntu
+    command: [ "bash", "-c", "tar czvf /backup/zincsearch-backup.tar.gz -C /source ." ]
+    volumes:
+      - zincsearch-volume:/source
+      - ./backup:/backup
+
+  # Service for restore the indexed db
+  restore:
+    image: ubuntu
+    command: [ "bash", "-c", "rm -rf /target/* && tar xzvf /backup/zincsearch-backup.tar.gz -C /target" ]
+    volumes:
+      - zincsearch-volume:/target
+      - ./backup:/backup
 
 volumes:
   zincsearch-volume:

@@ -29,7 +29,7 @@ func createIndexFor(indexName string, indexConfig zincsearch_models.CreateIndex)
 }
 
 func indexExists(indexName string) (bool, error) {
-	resp, err := Request(http.MethodHead, "/api/index/", nil)
+	resp, err := Request(http.MethodHead, "/api/index/"+indexName, nil)
 	if err != nil {
 		return false, fmt.Errorf("error making request %s ", err)
 	}

@@ -53,7 +53,7 @@ func InboxIndexTypeStructure() CreateIndex {
 				Type:     "date",
 				Index:    true,
 				Sortable: true,
-				Format:   "time.RFC1123",
+				Format:   "Mon, 2 Jan 2006 15:04:05 -0700 (MST)",
 			},
 			"from": {
 				Type:          "text",

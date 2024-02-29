@@ -39,6 +39,28 @@ export exportPath="./indexer/profiling/v1" && go test -v -cpuprofile "$exportPat
 
 Note: Notice that `exportPath` is used to set where the profiling files will be saved
 
+## Restore Zincsearch Data
+
+- I added some usefull commands to the `docker-compose.yml` file:
+
+### Restore Data
+
+```zsh
+# to run the restore cmd you need to have the
+# zincsearch-backup.tar.gz file into the backup folder
+# or modify the command at the docker-compose
+# url to download backup (I uploaded to google drive because is easier but can be at S3 too or any service):
+# https://drive.google.com/file/d/1KLCwC9tNOHv1qb_bnCQhr7BLfgW7XoAH/view?usp=sharing
+docker-compose run --rm restore
+docker-compose up -d zincsearch
+```
+
+### Backup Data
+
+```zsh
+docker-compose run --rm backup
+```
+
 ## Structure:
 
 ```
