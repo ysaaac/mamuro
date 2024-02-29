@@ -9,23 +9,30 @@ import (
 	"net/http"
 )
 
-// SendJSONPost function performs the actual POST request and returns the error or response
-func SendJSONPost(endpoint string, data interface{}) (*http.Response, error) {
-	zincsearchUri := config.GetEnv("ZINCSEARCH_URI", "localhost:4080")
+// Request function performs request and handle permissions
+func Request(method string, endpoint string, data interface{}) (*http.Response, error) {
+	zincsearchUri := config.GetEnv("ZINCSEARCH_URI", "http://localhost:4080")
 
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
+	var jsonData []byte
+	if data != nil {
+		var err error
+		jsonData, err = json.Marshal(data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodPost, zincsearchUri+endpoint, bytes.NewReader(jsonData))
+	req, err := http.NewRequest(method, zincsearchUri+endpoint, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
 
+	req.SetBasicAuth(
+		config.GetEnv("ZINC_FIRST_USER", "admin"),
+		config.GetEnv("ZINC_FIRST_PASSWORD", "admin123"),
+	)
 	req.Header.Set("Content-Type", "application/json")
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

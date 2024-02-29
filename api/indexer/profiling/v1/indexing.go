@@ -13,6 +13,11 @@ import (
 
 func IndexData(folderPath string) {
 	fmt.Printf("=================\n")
+	// I'm defining a counter because I'm going to send a bulk every 1000 records due to bulk Zincsearch
+	// specification, you can see more here -> https://zincsearch-docs.zinc.dev/api/document/bulk/#request-action
+	//var inboxTypeItemCounter int
+	//var sentItemsTypeItemCounter int
+
 	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -30,6 +35,7 @@ func IndexData(folderPath string) {
 				}
 
 				emailJSON, _ := json.MarshalIndent(email, "", "  ")
+				//zincsearch.BulkV2()
 				fmt.Println(string(emailJSON))
 			}
 		}

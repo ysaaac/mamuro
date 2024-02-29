@@ -2,6 +2,7 @@ package zincsearch
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -9,7 +10,7 @@ func BulkV2(data interface{}) {
 	requestStartTime := time.Now()
 
 	// Send the POST with the Bulk data for indexing
-	resp, err := SendJSONPost("/api/_bulkv2", data)
+	resp, err := Request(http.MethodPost, "/api/_bulkv2", data)
 	if err != nil {
 		fmt.Println("Error sending request:", err)
 		return

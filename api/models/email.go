@@ -15,10 +15,10 @@ type Email struct {
 	Date                    string             `json:"date"`
 	From                    string             `json:"from"`
 	To                      string             `json:"to"`
-	Subject                 string             `json:"Subject"`
+	Subject                 string             `json:"subject"`
 	MimeVersion             string             `json:"mime_version"`
 	ContentType             string             `json:"content_type"`
-	ContentTransferEncoding string             `json:"content-transfer-encoding"`
+	ContentTransferEncoding string             `json:"content_transfer_encoding"`
 	XFrom                   string             `json:"x_from"`
 	XTo                     string             `json:"x_to"`
 	Xcc                     string             `json:"x_cc"`
