@@ -10,13 +10,6 @@ import (
 	"time"
 )
 
-type Shards struct {
-	Total      int `json:"total"`
-	Successful int `json:"successful"`
-	Skipped    int `json:"skipped"`
-	Failed     int `json:"failed"`
-}
-
 type Total struct {
 	Value int `json:"value"`
 }
@@ -29,8 +22,6 @@ type Source struct {
 }
 
 type Hit struct {
-	Index     string    `json:"_index"`
-	Type      string    `json:"_type"`
 	Id        string    `json:"_id"`
 	Score     int       `json:"_score"`
 	Timestamp time.Time `json:"@timestamp"`
@@ -38,16 +29,12 @@ type Hit struct {
 }
 
 type Hits struct {
-	Total    Total `json:"total"`
-	MaxScore int   `json:"max_score"`
-	Hits     []Hit `json:"hits"`
+	Total Total `json:"total"`
+	Hits  []Hit `json:"hits"`
 }
 
 type SearchResponse struct {
-	Took     int    `json:"took"`
-	TimedOut bool   `json:"timed_out"`
-	Shards   Shards `json:"_shards"`
-	Hits     Hits   `json:"hits"`
+	Hits Hits `json:"hits"`
 }
 
 type QueryAllDocuments struct {
