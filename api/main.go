@@ -14,6 +14,7 @@ func Router() http.Handler {
 	// Routes definition
 	router.Get("/", handlers.HealthCheckHandler)
 	router.Get("/indexing", handlers.IndexHandler)
+	router.Get("/inbox", handlers.InboxHandler)
 
 	return router
 }
