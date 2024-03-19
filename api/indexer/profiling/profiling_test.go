@@ -2,7 +2,7 @@ package profiling
 
 import (
 	"api/config"
-	v1 "api/indexer/profiling/v1"
+	v2 "api/indexer/profiling/v2"
 	"flag"
 	"fmt"
 	"log"
@@ -35,7 +35,7 @@ func TestStartProfiling(t *testing.T) {
 	}
 	indexingTimeStart := time.Now()
 
-	v1.IndexData(testFilesPath)
+	v2.IndexData(testFilesPath)
 
 	defer fmt.Printf("Indexing processing took: %v\n", time.Since(indexingTimeStart))
 
