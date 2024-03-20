@@ -3,6 +3,7 @@ import { MailSectionType } from '@/enums/MailSection'
 import type { MailListType } from '@/types/MailList'
 import { formatDate } from '@/utils/FormatDateTime'
 import type { EmailContentType } from '@/types/MailContent'
+import { fetchData } from '@/api'
 
 export const useMailingStore = defineStore({
   id: 'mail',
@@ -10,7 +11,11 @@ export const useMailingStore = defineStore({
     mailSectionType: MailSectionType.INBOX as MailSectionType,
     mailList: [] as MailListType[],
     totalMails: 0 as number,
-    currentMail: null as EmailContentType | null
+    currentPage: 1 as number,
+    displayPage: 1 as number,
+    lastPage: 0 as number,
+    currentMail: null as EmailContentType | null,
+    searchWord: undefined as string | undefined,
   }),
   actions: {
     setMailListData(data: MailListResponseType) {
@@ -21,9 +26,10 @@ export const useMailingStore = defineStore({
           from: mailResponse._source.from,
           subject: mailResponse._source.subject,
           date: formatDate(mailResponse._source.date),
-          viewed: false
+          viewed: false,
         }
       })
+      this.lastPage = this.totalMails / 100
     },
     setCurrentMail(index: number, data: MailListResponseType) {
       if (data.hits.total.value == 1) {
@@ -36,11 +42,40 @@ export const useMailingStore = defineStore({
           content: content!,
           date: formatDate(date)
         }
-        console.log({ index, currentMail: this.currentMail })
+      }
+    },
+    async previousPage() {
+      this.currentPage--
+      const data = await fetchMailsListByPage(this.mailSectionType, this.currentPage - 1)
+      if (data) {
+        this.setMailListData(data)
+      }
+    },
+    async nextPage() {
+      this.currentPage++
+      const data = await fetchMailsListByPage(this.mailSectionType, this.currentPage - 1)
+      if (data) {
+        this.setMailListData(data)
+      }
+    },
+    async searchMailBy(term: string) {
+      const response: MailListResponseType = await fetchData(`/${this.mailSectionType.toLowerCase()}?search=${term}`)
+      if (response) {
+        this.setMailListData(response)
+        this.searchWord = term
       }
     }
   }
 })
+
+const fetchMailsListByPage = async (sectionType: MailSectionType, page: number): Promise<MailListResponseType | undefined> => {
+  try {
+    const endpointUrl = `/${sectionType.toLowerCase()}?page=${page}`
+    return await fetchData(endpointUrl)
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
 
 interface MailResponseType {
   _id: string

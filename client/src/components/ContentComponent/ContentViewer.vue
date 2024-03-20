@@ -8,9 +8,9 @@ const currentMail = ref<EmailContentType | null>(null)
 
 // Watch for changes in currentMail and update the content prop accordingly
 watch(() => mailingStore.currentMail, (newCurrentMail) => {
-  currentMail.value = newCurrentMail;
-  currentMail.value = currentMail.value ? { ...currentMail.value } : null;
-});
+  currentMail.value = newCurrentMail
+  currentMail.value = currentMail.value ? { ...currentMail.value } : null
+})
 
 const contentViewerIcons = {
   star: 'https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png',
@@ -47,7 +47,7 @@ const contentViewerIcons = {
         <div class="flex-1 flex flex-col justify-between items-end py-2">
           <div class="flex flex-row items-center space-x-2 cursor-pointer">
             <!--            x-text="new Date(postContent.created_utc * 1000).toLocaleString()"-->
-            <div><p class="text-gray-500 text-xs">{{ currentMail?.date }}</p></div>
+            <div><p class="min-w-20 w-20 text-gray-500 text-xs">{{ currentMail?.date }}</p></div>
             <div>
               <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.star}')` }" />
             </div>
@@ -82,7 +82,8 @@ const contentViewerIcons = {
         <!-- Print all comments -->
         <div class="border-l-2 border-gray-300 pb-2">
           <div class="pl-2">
-            <p class="text-sm">{{ currentMail?.content }}</p>
+            <div v-html="currentMail?.content" class="text-sm"></div>
+            <!--            <p class="text-sm"></p>-->
           </div>
         </div>
       </div>
@@ -92,7 +93,7 @@ const contentViewerIcons = {
 
 <style scoped lang="scss">
 .user-avatar {
-  @apply rounded-full object-cover w-10 h-10 aspect-square;
+  @apply rounded-full object-cover min-w-10 w-10 h-10 aspect-square;
 }
 
 .content-options-icons {

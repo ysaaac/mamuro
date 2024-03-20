@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useMailingStore } from '@/stores/mailing'
+
 const iconsUrls = {
   box: '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/check_box_outline_blank_baseline_nv700_20dp.png',
   arrowDown: '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/arrow_drop_down_baseline_nv700_20dp.png',
@@ -12,6 +14,9 @@ const iconsUrls = {
   savedItems: '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/label_baseline_nv700_20dp.png',
   threeDots: '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/more_vert_baseline_nv700_20dp.png'
 }
+
+const mailingStore = useMailingStore()
+
 </script>
 
 <template>
@@ -48,6 +53,31 @@ const iconsUrls = {
     </div>
     <div class="pl-4">
       <div class="pre-list-icon" :style="{ backgroundImage: `url('${iconsUrls.threeDots}')` }"></div>
+    </div>
+    <div class="ml-auto">
+      <ul class="flex">
+        <li v-if="mailingStore.currentPage > 1">
+          <button
+            @click="mailingStore.previousPage()"
+            class="px-3 py-1 bg-gray-200 text-gray-700 rounded-l hover:bg-gray-300"
+          >
+            &lt;
+          </button>
+        </li>
+        <li>
+          <button class="px-3 py-1 mx-1 bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold">
+            {{ mailingStore.currentPage }}
+          </button>
+        </li>
+        <li v-if="mailingStore.currentPage < mailingStore.lastPage">
+          <button
+            @click="mailingStore.nextPage()"
+            class="px-3 py-1 bg-gray-200 text-gray-700 rounded-r hover:bg-gray-300"
+          >
+            &gt;
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
