@@ -20,13 +20,15 @@ type Source struct {
 	From      string `json:"from"`
 	MessageId string `json:"message_id"`
 	Subject   string `json:"subject"`
+	To        string `json:"to,omitempty"`
+	Content   string `json:"content,omitempty"`
 }
 
 type Hit struct {
-	Id        string    `json:"_id"`
-	Score     int       `json:"_score"`
-	Timestamp time.Time `json:"@timestamp"`
-	Source    Source    `json:"_source"`
+	Id        string      `json:"_id"`
+	Score     json.Number `json:"_score"`
+	Timestamp time.Time   `json:"@timestamp"`
+	Source    Source      `json:"_source"`
 }
 
 type Hits struct {
@@ -46,6 +48,17 @@ type QueryAllDocuments struct {
 	Source     []string `json:"_source"`
 }
 
+type TermFilter struct {
+	Field string `json:"field"`
+	Term  string `json:"term"`
+}
+
+type QueryByTerm struct {
+	SearchType string     `json:"search_type"`
+	Query      TermFilter `json:"query"`
+	Source     []string   `json:"_source"`
+}
+
 func EmailList(from int, target string) SearchResponse {
 	queryAllDocuments := QueryAllDocuments{
 		SearchType: "match_all",
@@ -57,7 +70,30 @@ func EmailList(from int, target string) SearchResponse {
 
 	//fmt.Println("Request Body:\n", queryAllDocuments)
 
-	inboxList, inboxListError := zincsearch.Request(http.MethodPost, "/api/"+target+"/_search", queryAllDocuments)
+	queryResult := RequestEmail(target, queryAllDocuments)
+
+	sort.Slice(queryResult.Hits.Hits, func(i, j int) bool {
+		date1, _ := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700 (MST)", queryResult.Hits.Hits[i].Source.Date)
+		date2, _ := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700 (MST)", queryResult.Hits.Hits[j].Source.Date)
+		return date1.After(date2)
+	})
+
+	return queryResult
+}
+
+func EmailByTerm(target string, field string, term string) SearchResponse {
+	queryByTerm := QueryByTerm{
+		SearchType: "term",
+		Query:      TermFilter{Field: field, Term: term},
+		Source:     []string{"message_id", "from", "to", "subject", "content", "date"},
+	}
+
+	queryResult := RequestEmail(target, queryByTerm)
+	return queryResult
+}
+
+func RequestEmail(target string, query interface{}) SearchResponse {
+	inboxList, inboxListError := zincsearch.Request(http.MethodPost, "/api/"+target+"/_search", query)
 	if inboxListError != nil {
 		fmt.Printf("Error making request: %s\n", inboxListError)
 		return SearchResponse{}
@@ -81,13 +117,6 @@ func EmailList(from int, target string) SearchResponse {
 		fmt.Printf("Error unmarshaling JSON: %s\n", err)
 		return SearchResponse{}
 	}
-
-	sort.Slice(result.Hits.Hits, func(i, j int) bool {
-		date1, _ := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700 (MST)", result.Hits.Hits[i].Source.Date)
-		date2, _ := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700 (MST)", result.Hits.Hits[j].Source.Date)
-		return date1.After(date2)
-	})
-
 	return result
 }
 

@@ -1,10 +1,18 @@
 <script setup lang="ts">
 
-import {useMailingStore} from "@/stores/mailing";
+import { useMailingStore } from '@/stores/mailing'
+import { fetchData } from '@/api'
+
 const mailingStore = useMailingStore()
 
-const getMailContent = (mailId: string): any => {
-  console.log('Fetching mail content of ', mailId)
+const getMailContent = async (index: number, mailId: string) => {
+  try {
+    const endpointUrl = `/${mailingStore.mailSectionType.toLowerCase()}`
+    const response = await fetchData(endpointUrl + `?id=${mailId}`)
+    mailingStore.setCurrentMail(index, response)
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  }
 }
 const savedIconUrl = '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/label_baseline_nv700_20dp.png'
 </script>
@@ -13,14 +21,14 @@ const savedIconUrl = '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/label_baseline_n
   <div class="h-full max–h-full flex-1 overflow-y-scroll">
     <!--    :class="{ 'bg-gray-200/80': viewedPosts[item.data.id], 'bg-blue-200': postContent !== null && postContent.id === item.data.id, 'hover:bg-gray-100': postContent !== null && postContent.id !== item.data.id }"-->
     <div
-        v-for="(mail, index) in mailingStore.mailList"
-        :key="index"
-        @click="getMailContent(mail.mailId)"
-        class="item-list"
-        :class="{ 'bg-gray-200/80': mail.viewed, 'bg-blue-200 hover:bg-gray-100': !mail.viewed}"
+      v-for="(mail, index) in mailingStore.mailList"
+      :key="index"
+      @click="getMailContent(index,mail.mailId)"
+      class="item-list"
+      :class="{ 'bg-gray-200/80': mail.viewed, 'bg-blue-200 hover:bg-gray-100': !mail.viewed}"
     >
       <div>
-        <input type="checkbox"/>
+        <input type="checkbox" />
       </div>
       <div>
         <div class="w-5 h-5 bg-contain bg-no-repeat" :style="{ backgroundImage: `url('${savedIconUrl}')` }"></div>

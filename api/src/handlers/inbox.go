@@ -4,6 +4,16 @@ import "net/http"
 
 func InboxHandler(w http.ResponseWriter, r *http.Request) {
 	page := GetPage(w, r)
-	response := EmailList(page, "inbox")
+	objId := r.URL.Query().Get("id")
+	target := "inbox"
+
+	var response SearchResponse
+
+	if objId != "" {
+		response = EmailByTerm(target, "_id", objId)
+	} else {
+		response = EmailList(page, target)
+	}
+
 	WriteJsonResponse(w, http.StatusOK, response)
 }
