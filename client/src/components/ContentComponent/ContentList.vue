@@ -1,10 +1,8 @@
 <script setup lang="ts">
 
-const mailList = [
-  { mailId: '1', from: 'from-', subject: 'subject--', date: 'date---', viewed: false },
-  { mailId: '2', from: 'from-', subject: 'subject--', date: 'date---', viewed: true },
-  { mailId: '3', from: 'from-', subject: 'subject--', date: 'date---', viewed: true }
-]
+import {useMailingStore} from "@/stores/mailing";
+const mailingStore = useMailingStore()
+
 const getMailContent = (mailId: string): any => {
   console.log('Fetching mail content of ', mailId)
 }
@@ -15,14 +13,14 @@ const savedIconUrl = '//ssl.gstatic.com/ui/v1/icons/mail/gm3/1x/label_baseline_n
   <div class="h-full max–h-full flex-1 overflow-y-scroll">
     <!--    :class="{ 'bg-gray-200/80': viewedPosts[item.data.id], 'bg-blue-200': postContent !== null && postContent.id === item.data.id, 'hover:bg-gray-100': postContent !== null && postContent.id !== item.data.id }"-->
     <div
-      v-for="(mail, index) in mailList"
-      :key="index"
-      @click="getMailContent(mail.mailId)"
-      class="item-list"
-      :class="{ 'bg-gray-200/80': mail.viewed, 'bg-blue-200 hover:bg-gray-100': !mail.viewed}"
+        v-for="(mail, index) in mailingStore.mailList"
+        :key="index"
+        @click="getMailContent(mail.mailId)"
+        class="item-list"
+        :class="{ 'bg-gray-200/80': mail.viewed, 'bg-blue-200 hover:bg-gray-100': !mail.viewed}"
     >
       <div>
-        <input type="checkbox" />
+        <input type="checkbox"/>
       </div>
       <div>
         <div class="w-5 h-5 bg-contain bg-no-repeat" :style="{ backgroundImage: `url('${savedIconUrl}')` }"></div>

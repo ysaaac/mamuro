@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import ContentComponent from '@/components/ContentComponent/ContentComponent.vue'
+import {MailSectionType} from "@/enums/MailSection";
 </script>
 
 <template>
-  <ContentComponent />
+  <ContentComponent :mailSectionType="MailSectionType.INBOX"/>
 </template>

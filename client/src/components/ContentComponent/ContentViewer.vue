@@ -1,24 +1,14 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import {defineProps} from 'vue'
+import {useMailingStore} from "@/stores/mailing";
+import type {EmailContentType} from "@/types/MailContent";
 
-interface EmailContentViewer {
-  from: string;
-  to: string
-  subject: string;
-  content: string;
-  date: string;
+interface EmailContentViewer extends EmailContentType {
 }
 
-enum MailSectionType {
-  INBOX = 'Inbox',
-  SENT = 'Sent'
-}
+const props = defineProps<EmailContentViewer>()
 
-interface ContentViewerComponent extends EmailContentViewer {
-  mailSectionType: MailSectionType
-}
-
-const props = defineProps<ContentViewerComponent>()
+const mailingStore = useMailingStore()
 
 const contentViewerIcons = {
   star: 'https://www.gstatic.com/images/icons/material/system_gm/1x/star_border_black_20dp.png',
@@ -41,12 +31,12 @@ const contentViewerIcons = {
       <h1 class="text-xl">{{ subject }}</h1>
       <div>
         <div class="px-[0.25rem] rounded bg-neutral-200 text-gray-800 text-xs w-fit">
-          {{ mailSectionType }}
+          {{ mailingStore.mailSectionType }}
         </div>
       </div>
       <div class="flex flex-row space-x-4 items-center">
         <div class="w-10 h-10">
-          <img class="user-avatar" src="https://lh3.googleusercontent.com/a/default-user=s40-p" alt="user-avatar" />
+          <img class="user-avatar" src="https://lh3.googleusercontent.com/a/default-user=s40-p" alt="user-avatar"/>
         </div>
         <div class="flex flex-col justify-between py-2">
           <div><p class="font-medium text-sm"> {{ from }} </p></div>
@@ -57,15 +47,15 @@ const contentViewerIcons = {
             <!--            x-text="new Date(postContent.created_utc * 1000).toLocaleString()"-->
             <div><p class="text-gray-500 text-xs">{{ date }}</p></div>
             <div>
-              <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.star}')` }" />
+              <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.star}')` }"/>
             </div>
 
             <div>
-              <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.reply}')` }" />
+              <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.reply}')` }"/>
             </div>
 
             <div>
-              <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.more}')` }" />
+              <div class="content-options-icons" :style="{ backgroundImage: `url('${contentViewerIcons.more}')` }"/>
             </div>
           </div>
           <div><p class="font-medium text-sm opacity-0">{{ from }}</p></div>

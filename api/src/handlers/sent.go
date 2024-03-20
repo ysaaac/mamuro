@@ -2,8 +2,8 @@ package handlers
 
 import "net/http"
 
-func InboxHandler(w http.ResponseWriter, r *http.Request) {
+func SentHandler(w http.ResponseWriter, r *http.Request) {
 	page := GetPage(w, r)
-	response := EmailList(page, "inbox")
+	response := EmailList(page, "sent_items")
 	WriteJsonResponse(w, http.StatusOK, response)
 }
